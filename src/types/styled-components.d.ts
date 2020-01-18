@@ -1,16 +1,4 @@
-import "styled-components";
-
-interface Theme {
-  color: {
-    brand: string;
-    text: {
-      primary: string;
-      secondary: string;
-    };
-    accent: string;
-    divider: string;
-  };
-}
+import { Theme } from "@/theme/theme";
 
 declare module "styled-components" {
   interface DefaultTheme extends Theme {}

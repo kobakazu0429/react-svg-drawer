@@ -1,8 +1,19 @@
-import { DefaultTheme } from "styled-components";
-
 export type ThemeName = "default";
+export type Themes = { [P in ThemeName]: Theme };
 
-const theme: DefaultTheme = {
+export interface Theme {
+  color: {
+    brand: string;
+    text: {
+      primary: string;
+      secondary: string;
+    };
+    accent: string;
+    divider: string;
+  };
+}
+
+const theme: Theme = {
   color: {
     brand: "#0F4C81",
     text: {
@@ -14,6 +25,6 @@ const theme: DefaultTheme = {
   }
 };
 
-export const themes = {
+export const themes: Themes = {
   default: theme
 };
