@@ -1,5 +1,12 @@
-import React from "react";
+import React, { FC } from "react";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 
-const App = () => <p>Hello, React World !</p>;
+const App: FC = () => {
+  return (
+    <ThemeProvider themeName="default">
+      <p>Hello, React World !</p>
+    </ThemeProvider>
+  );
+};
 
 export default App;
