@@ -24,6 +24,7 @@ let path: SVGPathElement | null = null;
 let buffer: Point[] = [];
 let strPath: string = "";
 
+// based on https://stackoverflow.com/a/40700068
 export const Canvas: FC<Props> = ({ width, height }) => {
   const canvasRef = useRef<SVGSVGElement>(null);
   const [rect, setRect] = useState<DOMRectReadOnly>();
