@@ -110,7 +110,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
     return null;
   }, []);
 
-  const updateSvgPath = () => {
+  const updateSvgPath = useCallback(() => {
     let pt = getAveragePoint(0);
     if (!pt) return;
 
@@ -128,7 +128,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
     // Set the complete current path coordinates
     if (!path) return;
     path.setAttribute("d", strPath + tmpPath);
-  };
+  }, []);
 
   return (
     <StyledCanvas
