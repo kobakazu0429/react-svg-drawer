@@ -6,6 +6,8 @@ export interface CanvasContext {
   pen: {
     color: string;
     changeColor: SetState<string>;
+    width: number;
+    changeWidth: SetState<number>;
   };
 }
 
