@@ -40,6 +40,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       path.setAttribute("stroke-width", strokeWidth);
       buffer = [];
       const pt = getMousePosition(e);
+      if (!pt) return;
       appendToBuffer(pt);
       strPath = `M${pt.x} ${pt.y}`;
       path.setAttribute("d", strPath);
@@ -55,6 +56,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       // if (!path) return;
 
       const pt = getMousePosition(e);
+      if (!pt) return;
       appendToBuffer(pt);
       updateSvgPath();
     },
@@ -68,10 +70,17 @@ export const Canvas: FC<Props> = ({ width, height }) => {
     [canvasRef.current, rect]
   );
 
-  const getMousePosition = (e: PointerEvent<SVGSVGElement>): Point => ({
-    x: e.pageX - rect.left,
-    y: e.pageY - rect.top
-  });
+  const getMousePosition = useCallback(
+    (e: PointerEvent<SVGSVGElement>): Point | undefined => {
+      if (!rect) return;
+
+      return {
+        x: e.pageX - rect.left,
+        y: e.pageY - rect.top
+      };
+    },
+    [rect]
+  );
 
   const appendToBuffer = useCallback((pt: Point) => {
     buffer.push(pt);
