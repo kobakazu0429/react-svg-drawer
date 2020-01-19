@@ -1,4 +1,11 @@
-import React, { FC, useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  FC,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  PointerEvent
+} from "react";
 import styled from "styled-components";
 
 interface Props {
@@ -18,24 +25,15 @@ let buffer: Point[] = [];
 let strPath = "";
 
 export const Canvas: FC<Props> = ({ width, height }) => {
-  const canvasRef = useRef<SVGElement>(null);
+  const canvasRef = useRef<SVGSVGElement>(null);
   const [rect, setRect] = useState<any>();
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    setRect(canvasRef.current!.getBoundingClientRect());
-    canvasRef.current.addEventListener("pointerdown", handlePointerdown);
-    canvasRef.current.addEventListener("pointermove", handlePointermove);
-    canvasRef.current.addEventListener("pointerup", handlePointerup);
-    return () => {
-      canvasRef.current!.removeEventListener("pointerdown", handlePointerdown);
-      canvasRef.current!.removeEventListener("pointermove", handlePointermove);
-      canvasRef.current!.removeEventListener("pointerup", handlePointerup);
-    };
+    canvasRef.current && setRect(canvasRef.current!.getBoundingClientRect());
   }, [canvasRef.current]);
 
   const handlePointerdown = useCallback(
-    (e: PointerEvent) => {
+    (e: PointerEvent<SVGSVGElement>) => {
       path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", "#000");
@@ -51,8 +49,10 @@ export const Canvas: FC<Props> = ({ width, height }) => {
   );
 
   const handlePointermove = useCallback(
-    (e: PointerEvent) => {
-      if (!path) return;
+    (e: PointerEvent<SVGSVGElement>) => {
+      if (e.pointerType === "mouse" && !path) return;
+      console.log("called handlePointermove");
+      // if (!path) return;
 
       const pt = getMousePosition(e);
       appendToBuffer(pt);
@@ -62,13 +62,13 @@ export const Canvas: FC<Props> = ({ width, height }) => {
   );
 
   const handlePointerup = useCallback(
-    (_e: PointerEvent) => {
+    (_e: PointerEvent<SVGSVGElement>) => {
       path = null;
     },
     [canvasRef.current, rect]
   );
 
-  const getMousePosition = (e: PointerEvent): Point => ({
+  const getMousePosition = (e: PointerEvent<SVGSVGElement>): Point => ({
     x: e.pageX - rect.left,
     y: e.pageY - rect.top
   });
@@ -133,8 +133,10 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       viewBox={`0 0 ${width} ${height}`}
       enableBackground={`new 0 0 ${width} ${height}`}
       xmlSpace="preserve"
-      // @ts-ignore
       ref={canvasRef}
+      onPointerDown={handlePointerdown}
+      onPointerMove={handlePointermove}
+      onPointerUp={handlePointerup}
     ></StyledCanvas>
   );
 };
