@@ -26,7 +26,7 @@ let strPath = "";
 
 export const Canvas: FC<Props> = ({ width, height }) => {
   const canvasRef = useRef<SVGSVGElement>(null);
-  const [rect, setRect] = useState<any>();
+  const [rect, setRect] = useState<DOMRectReadOnly>();
 
   useEffect(() => {
     canvasRef.current && setRect(canvasRef.current!.getBoundingClientRect());
