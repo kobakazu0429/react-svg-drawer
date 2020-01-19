@@ -4,9 +4,11 @@ import React, {
   useCallback,
   useEffect,
   useRef,
+  useContext,
   PointerEvent
 } from "react";
 import styled from "styled-components";
+import { canvasContext } from "@/contexts/canvasContext";
 
 interface Props {
   width: number;
@@ -26,6 +28,7 @@ let strPath: string = "";
 
 // based on https://stackoverflow.com/a/40700068
 export const Canvas: FC<Props> = ({ width, height }) => {
+  const { pen } = useContext(canvasContext);
   const canvasRef = useRef<SVGSVGElement>(null);
   const [rect, setRect] = useState<DOMRectReadOnly>();
 
@@ -37,7 +40,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
     (e: PointerEvent<SVGSVGElement>) => {
       path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("fill", "none");
-      path.setAttribute("stroke", "#000");
+      path.setAttribute("stroke", pen.color);
       path.setAttribute("stroke-width", strokeWidth);
       buffer = [];
       const pt = getMousePosition(e);
@@ -47,7 +50,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       path.setAttribute("d", strPath);
       canvasRef.current!.appendChild(path);
     },
-    [canvasRef.current, rect]
+    [canvasRef.current, rect, pen.color]
   );
 
   const handlePointermove = useCallback(
