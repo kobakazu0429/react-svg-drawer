@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { CanvasContext } from "@/contexts/canvasContext";
 
 interface Props {
-  colorCode: string;
+  colorCode: CanvasContext["pen"]["color"];
   changeColor: CanvasContext["pen"]["changeColor"];
 }
 
