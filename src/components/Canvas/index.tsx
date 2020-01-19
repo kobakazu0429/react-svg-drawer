@@ -20,7 +20,6 @@ interface Point {
   y: number;
 }
 
-const strokeWidth = "2";
 const bufferSize = 4;
 let path: SVGPathElement | null = null;
 let buffer: Point[] = [];
@@ -41,7 +40,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", pen.color);
-      path.setAttribute("stroke-width", strokeWidth);
+      path.setAttribute("stroke-width", String(pen.width));
       buffer = [];
       const pt = getMousePosition(e);
       if (!pt) return;
@@ -50,7 +49,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       path.setAttribute("d", strPath);
       canvasRef.current!.appendChild(path);
     },
-    [canvasRef.current, rect, pen.color]
+    [canvasRef.current, rect, pen.color, pen.width]
   );
 
   const handlePointermove = useCallback(
