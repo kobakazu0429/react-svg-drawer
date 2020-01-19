@@ -22,7 +22,7 @@ const strokeWidth = "2";
 const bufferSize = 4;
 let path: SVGPathElement | null = null;
 let buffer: Point[] = [];
-let strPath = "";
+let strPath: string = "";
 
 export const Canvas: FC<Props> = ({ width, height }) => {
   const canvasRef = useRef<SVGSVGElement>(null);
@@ -52,7 +52,6 @@ export const Canvas: FC<Props> = ({ width, height }) => {
   const handlePointermove = useCallback(
     (e: PointerEvent<SVGSVGElement>) => {
       if (e.pointerType === "mouse" && !path) return;
-      console.log("called handlePointermove");
       // if (!path) return;
 
       const pt = getMousePosition(e);
@@ -122,7 +121,8 @@ export const Canvas: FC<Props> = ({ width, height }) => {
     let tmpPath = "";
     for (let offset = 2; offset < buffer.length; offset += 2) {
       pt = getAveragePoint(offset);
-      tmpPath += ` L${pt!.x} ${pt!.y}`;
+      if (!pt) return;
+      tmpPath += ` L${pt.x} ${pt.y}`;
     }
 
     // Set the complete current path coordinates
