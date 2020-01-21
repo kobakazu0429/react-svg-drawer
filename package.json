@@ -20,7 +20,8 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router-dom": "^5.0.0",
-    "styled-components": "^5.0.0"
+    "styled-components": "^5.0.0",
+    "ulid": "^2.3.0"
   },
   "devDependencies": {
     "@types/node": "12.12.25",
