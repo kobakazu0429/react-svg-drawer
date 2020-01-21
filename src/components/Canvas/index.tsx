@@ -8,6 +8,7 @@ import React, {
   PointerEvent
 } from "react";
 import styled from "styled-components";
+import { ulid } from "ulid";
 import { canvasContext } from "@/contexts/canvasContext";
 
 interface Props {
@@ -20,8 +21,17 @@ interface Point {
   y: number;
 }
 
+interface Path {
+  fill: string;
+  stroke: string;
+  strokeWidth: string;
+  d: string;
+  id: string;
+}
+
 const bufferSize = 4;
-let path: SVGPathElement | null = null;
+let drawingPathElement: SVGPathElement | null = null;
+let drawingPath: Path | null = null;
 let buffer: Point[] = [];
 let strPath: string = "";
 
@@ -30,6 +40,7 @@ export const Canvas: FC<Props> = ({ width, height }) => {
   const { pen } = useContext(canvasContext);
   const canvasRef = useRef<SVGSVGElement>(null);
   const [rect, setRect] = useState<DOMRectReadOnly>();
+  const [paths, setPaths] = useState<Path[]>([]);
 
   useEffect(() => {
     canvasRef.current && setRect(canvasRef.current!.getBoundingClientRect());
@@ -37,24 +48,35 @@ export const Canvas: FC<Props> = ({ width, height }) => {
 
   const handlePointerdown = useCallback(
     (e: PointerEvent<SVGSVGElement>) => {
-      path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", pen.color);
-      path.setAttribute("stroke-width", String(pen.width));
+      drawingPathElement = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path"
+      );
+      drawingPathElement.setAttribute("fill", "none");
+      drawingPathElement.setAttribute("stroke", pen.color);
+      drawingPathElement.setAttribute("stroke-width", String(pen.width));
       buffer = [];
       const pt = getMousePosition(e);
       if (!pt) return;
       appendToBuffer(pt);
       strPath = `M${pt.x} ${pt.y}`;
-      path.setAttribute("d", strPath);
-      canvasRef.current!.appendChild(path);
+      drawingPathElement.setAttribute("d", strPath);
+      drawingPathElement.setAttribute("id", "removableDom");
+      canvasRef.current!.appendChild(drawingPathElement);
+      drawingPath = {
+        fill: "none",
+        stroke: pen.color,
+        strokeWidth: String(pen.width),
+        d: strPath,
+        id: ulid()
+      };
     },
     [canvasRef.current, rect, pen.color, pen.width]
   );
 
   const handlePointermove = useCallback(
     (e: PointerEvent<SVGSVGElement>) => {
-      if (e.pointerType === "mouse" && !path) return;
+      if (e.pointerType === "mouse" && !drawingPathElement) return;
       // if (!path) return;
 
       const pt = getMousePosition(e);
@@ -67,9 +89,17 @@ export const Canvas: FC<Props> = ({ width, height }) => {
 
   const handlePointerup = useCallback(
     (_e: PointerEvent<SVGSVGElement>) => {
-      path = null;
+      // canvasRef.current &&
+      //   canvasRef.current.removeChild(canvasRef.current.lastElementChild!);
+      drawingPath && setPaths([...paths, drawingPath]);
+      drawingPath = null;
+      drawingPathElement = null;
+      const removableDomPath = document.getElementById("removableDom");
+      canvasRef.current &&
+        removableDomPath &&
+        canvasRef.current.removeChild(removableDomPath);
     },
-    [canvasRef.current, rect]
+    [canvasRef.current, paths, rect]
   );
 
   const getMousePosition = useCallback(
@@ -129,8 +159,9 @@ export const Canvas: FC<Props> = ({ width, height }) => {
     }
 
     // Set the complete current path coordinates
-    if (!path) return;
-    path.setAttribute("d", strPath + tmpPath);
+    if (!drawingPathElement || !drawingPath) return;
+    drawingPathElement.setAttribute("d", strPath + tmpPath);
+    drawingPath = { ...drawingPath, d: strPath + tmpPath };
   }, []);
 
   return (
@@ -149,7 +180,9 @@ export const Canvas: FC<Props> = ({ width, height }) => {
       onPointerDown={handlePointerdown}
       onPointerMove={handlePointermove}
       onPointerUp={handlePointerup}
-    ></StyledCanvas>
+    >
+      {paths && paths.map(p => <path {...p} key={p.id} />)}
+    </StyledCanvas>
   );
 };
 
