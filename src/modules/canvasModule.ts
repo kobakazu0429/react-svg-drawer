@@ -41,6 +41,12 @@ export const canvasModule = createSlice({
   reducers: {
     penColor: (state, action: PayloadAction<string>) => {
       state.config.pen.color = action.payload;
+    },
+    penWidth: (state, action: PayloadAction<number>) => {
+      state.config.pen.width = action.payload;
+    },
+    addPath: (state, action: PayloadAction<Path>) => {
+      state.paths.push(action.payload);
     }
   }
 });
