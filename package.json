@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.2.3",
+    "canvg": "^3.0.4",
     "normalize.css": "^8.0.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
