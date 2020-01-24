@@ -47,6 +47,9 @@ export const canvasModule = createSlice({
     },
     addPath: (state, action: PayloadAction<Path>) => {
       state.paths.push(action.payload);
+    },
+    allClearPath: (state, _action: PayloadAction<void>) => {
+      state.paths = [];
     }
   }
 });
