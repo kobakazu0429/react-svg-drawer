@@ -1,9 +1,11 @@
-import React, { FC, useContext } from "react";
+import React, { FC, useCallback } from "react";
 import styled from "styled-components";
-import { canvasContext } from "@/contexts/canvasContext";
+import { useDispatch } from "react-redux";
+import { canvasModule } from "@/modules/canvasModule";
+
 import { WidthButton } from "./button";
 
-const colorList = [
+const widthList = [
   { id: 1, width: 1 },
   { id: 2, width: 2 },
   { id: 3, width: 4 },
@@ -12,13 +14,16 @@ const colorList = [
 ];
 
 export const PenType: FC = ({}) => {
-  const { pen } = useContext(canvasContext);
-  console.log(pen.color);
+  const dispatch = useDispatch();
+  const changePenWidth = useCallback(
+    (width: number) => dispatch(canvasModule.actions.penWidth(width)),
+    []
+  );
 
   return (
     <Wrapper>
-      {colorList.map(({ width, id }) => (
-        <WidthButton width={width} key={id} changeWidth={pen.changeWidth} />
+      {widthList.map(({ width, id }) => (
+        <WidthButton width={width} key={id} changeWidth={changePenWidth} />
       ))}
     </Wrapper>
   );

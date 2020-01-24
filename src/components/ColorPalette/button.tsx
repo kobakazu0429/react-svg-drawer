@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import styled from "styled-components";
-import { CanvasContext } from "@/contexts/canvasContext";
+import { CanvasState } from "@/modules/canvasModule";
 
 interface Props {
-  colorCode: CanvasContext["pen"]["color"];
-  changeColor: CanvasContext["pen"]["changeColor"];
+  colorCode: CanvasState["config"]["pen"]["color"];
+  changeColor: (color: string) => any;
 }
 
 export const ColorButton: FC<Props> = ({ colorCode, changeColor }) => {

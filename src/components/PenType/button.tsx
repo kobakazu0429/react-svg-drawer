@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import styled from "styled-components";
-import { CanvasContext } from "@/contexts/canvasContext";
+import { CanvasState } from "@/modules/canvasModule";
 
 interface Props {
-  width: CanvasContext["pen"]["width"];
-  changeWidth: CanvasContext["pen"]["changeWidth"];
+  width: CanvasState["config"]["pen"]["width"];
+  changeWidth: (width: number) => any;
 }
 
 export const WidthButton: FC<Props> = ({ width, changeWidth }) => {

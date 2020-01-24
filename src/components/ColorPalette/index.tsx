@@ -1,7 +1,9 @@
-import React, { FC, useContext } from "react";
+import React, { FC, useCallback } from "react";
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
+import { canvasModule } from "@/modules/canvasModule";
+
 import { ColorButton } from "./button";
-import { canvasContext } from "@/contexts/canvasContext";
 
 const colorList = [
   { id: 1, color: "rgba(0, 0, 0, 0.3)" },
@@ -12,13 +14,16 @@ const colorList = [
 ];
 
 export const ColorPalette: FC = ({}) => {
-  const { pen } = useContext(canvasContext);
-  console.log(pen.color);
+  const dispatch = useDispatch();
+  const changePenColor = useCallback(
+    (color: string) => dispatch(canvasModule.actions.penColor(color)),
+    []
+  );
 
   return (
     <Wrapper>
       {colorList.map(({ color, id }) => (
-        <ColorButton colorCode={color} key={id} changeColor={pen.changeColor} />
+        <ColorButton colorCode={color} key={id} changeColor={changePenColor} />
       ))}
     </Wrapper>
   );
