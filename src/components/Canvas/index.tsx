@@ -118,6 +118,7 @@ export const Canvas: FC<Props> = ({
       if (penType === "Pen") {
         drawingPath && addPath(drawingPath);
       }
+      setEraserConfig(prev => ({ ...prev, enabled: false }));
       drawingPath = null;
       drawingPathElement = null;
       const removableDomPath = document.getElementById("removableDom");
