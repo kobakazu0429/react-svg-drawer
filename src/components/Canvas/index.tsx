@@ -4,13 +4,20 @@ import React, {
   useCallback,
   useEffect,
   useRef,
-  PointerEvent
+  PointerEvent,
+  Dispatch,
+  SetStateAction
 } from "react";
-
 import styled from "styled-components";
 import { ulid } from "ulid";
 
-import { Path, Point } from "@/modules/canvasModule";
+import { Path, Point, PenType } from "@/modules/canvasModule";
+
+interface Eraser {
+  x: number;
+  y: number;
+  enabled: boolean;
+}
 
 interface Props {
   width: number;
@@ -19,6 +26,11 @@ interface Props {
   penWidth: string;
   paths: Path[];
   addPath: (path: Path) => void;
+  penType: PenType;
+  eraserConfig: Eraser;
+  setEraserConfig: Dispatch<SetStateAction<Eraser>>;
+  addEraserPath: (path: Path) => void;
+  PathClear: () => void;
 }
 
 const bufferSize = 4;
@@ -34,7 +46,12 @@ export const Canvas: FC<Props> = ({
   penColor,
   penWidth,
   paths,
-  addPath
+  addPath,
+  penType,
+  eraserConfig,
+  setEraserConfig,
+  addEraserPath,
+  PathClear
 }) => {
   const canvasRef = useRef<SVGSVGElement>(null);
   const [rect, setRect] = useState<DOMRectReadOnly>();
@@ -49,9 +66,11 @@ export const Canvas: FC<Props> = ({
         "http://www.w3.org/2000/svg",
         "path"
       );
+      const _penColor =
+        penType !== "Pen" ? "rgba(255, 255, 255, 0.8)" : penColor;
 
       drawingPathElement.setAttribute("fill", "none");
-      drawingPathElement.setAttribute("stroke", penColor);
+      drawingPathElement.setAttribute("stroke", _penColor);
       drawingPathElement.setAttribute("stroke-width", penWidth);
       buffer = [];
       const pt = getMousePosition(e);
@@ -63,33 +82,42 @@ export const Canvas: FC<Props> = ({
       canvasRef.current!.appendChild(drawingPathElement);
       drawingPath = {
         fill: "none",
-        stroke: penColor,
+        stroke: _penColor,
         strokeWidth: penWidth,
         d: strPath,
         id: ulid()
       };
     },
-    [canvasRef.current, rect, penColor, penWidth]
+    [canvasRef.current, rect, penType, penColor, penWidth]
   );
 
   const handlePointermove = useCallback(
     (e: PointerEvent<SVGSVGElement>) => {
+      const pt = getMousePosition(e);
+      if (!pt) return;
+      if (penType !== "Pen") {
+        setEraserConfig(_prev => ({ x: pt.x, y: pt.y, enabled: true }));
+      }
       if (e.pointerType === "mouse" && !drawingPathElement) return;
       // if (!path) return;
 
-      const pt = getMousePosition(e);
-      if (!pt) return;
       appendToBuffer(pt);
       updateSvgPath();
     },
-    [canvasRef.current, rect]
+    [canvasRef.current, rect, penType]
   );
 
   const handlePointerup = useCallback(
     (_e: PointerEvent<SVGSVGElement>) => {
       // canvasRef.current &&
       //   canvasRef.current.removeChild(canvasRef.current.lastElementChild!);
-      drawingPath && addPath(drawingPath);
+      if (penType !== "Pen") {
+        drawingPath && addEraserPath(drawingPath);
+        PathClear();
+      }
+      if (penType === "Pen") {
+        drawingPath && addPath(drawingPath);
+      }
       drawingPath = null;
       drawingPathElement = null;
       const removableDomPath = document.getElementById("removableDom");
@@ -97,7 +125,7 @@ export const Canvas: FC<Props> = ({
         removableDomPath &&
         canvasRef.current.removeChild(removableDomPath);
     },
-    [canvasRef.current, rect, addPath]
+    [canvasRef.current, rect, penType, addPath, addEraserPath]
   );
 
   const getMousePosition = useCallback(
@@ -180,6 +208,9 @@ export const Canvas: FC<Props> = ({
       onPointerUp={handlePointerup}
     >
       {paths && paths.map(p => <path {...p} key={p.id} />)}
+      {eraserConfig.enabled && (
+        <Eraser cx={eraserConfig.x} cy={eraserConfig.y} r={penWidth} />
+      )}
     </StyledCanvas>
   );
 };
@@ -189,4 +220,10 @@ const StyledCanvas = styled.svg`
   margin-top: 4px;
   margin-left: 4px;
   cursor: default;
+`;
+
+const Eraser = styled.circle`
+  fill: rgba(255, 255, 255, 0.4);
+  stroke: ${({ theme }) => theme.color.divider};
+  stroke-width: 1.5;
 `;
